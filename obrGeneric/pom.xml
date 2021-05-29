@@ -5,7 +5,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.galasa</groupId>
+	<groupId>dev.galasa</groupId>
 	<artifactId>galasa-docker-obr</artifactId>
 	<version>0.16.0</version>
 	<packaging>pom</packaging>
@@ -59,6 +59,14 @@
 							<overWrite>true</overWrite>
 							<outputDirectory>${project.build.directory}</outputDirectory>
 							<destFileName>boot.jar</destFileName>
+						</artifactItem>
+						<artifactItem>
+							<groupId>dev.galasa</groupId>
+							<artifactId>galasa-simplatform</artifactId>
+							<version>0.15.0</version>
+							<overWrite>true</overWrite>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<destFileName>simplatform.jar</destFileName>
 						</artifactItem>
 					</artifactItems>
 					<outputDirectory>${project.build.directory}</outputDirectory>
