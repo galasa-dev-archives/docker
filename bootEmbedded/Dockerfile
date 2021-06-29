@@ -1,9 +1,8 @@
-ARG obrVersion
 ARG dockerRepository
 ARG branch
 ARG jdkImage
 
-FROM ${dockerRepository}/galasadev/galasa-obr-generic:${obrVersion}-${branch}
+FROM ${dockerRepository}/galasadev/galasa-obr-generic:${branch}
 
 FROM ${dockerRepository}/${jdkImage}
 

@@ -1,0 +1,102 @@
+#
+# Licensed Materials - Property of IBM
+# 
+# (c) Copyright IBM Corp. 2021.
+#
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: obr-generic-build
+  namespace: galasa-tekton
+spec:
+  resources:
+    inputs:
+      - name: git-docker
+        type: git
+  params:
+  - name: distBranch
+    type: string
+  - name: mavenCentralRepo
+    type: string
+    default: https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/repository/proxy/
+  - name: obrSourceRepo
+    type: string
+    default: https://repo.maven.apache.org/maven2/
+  - name: dockerRepo
+    type: string
+    default: nexus.cics-ts.hur.hdclab.intranet.ibm.com:8080
+  - name: noPush
+    type: string
+    default: ""
+  steps:
+  - name: obr-embed
+    workingDir: /workspace/git-docker/obrGeneric
+    image: $(params.dockerRepo)/galasa/galasa-build
+    command:
+    - mvn
+    - -Dgalasa.source.repo=$(params.obrSourceRepo)
+    - -Dgalasa.central.repo=$(params.mavenCentralRepo)
+    - --settings
+    - /workspace/git-docker/settings.xml
+    - -B
+    - -e
+    - -fae
+    - process-sources
+    - dev.galasa:galasa-maven-plugin:0.15.0:obrembedded
+  - name: generic-docker-build
+    workingDir: /workspace/git-docker/obrGeneric
+    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    env:
+    - name: DOCKER_CONFIG
+      value: /tekton/home/.docker
+    command:
+    - /kaniko/executor
+    - --dockerfile=./Dockerfile
+    - --context=/workspace/git-docker/obrGeneric
+    - --destination=$(params.dockerRepo)/galasadev/galasa-obr-generic:$(params.distBranch)
+    - $(params.noPush)
+    - --oci-layout-path=/workspace/git-docker/obrGeneric/image-digest
+    - --skip-tls-verify
+    - --skip-tls-verify-pull
+    - --single-snapshot
+    - --verbosity=info
+  - name: amd64-docker-build
+    workingDir: /workspace/git-docker/bootEmbedded
+    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    env:
+    - name: DOCKER_CONFIG
+      value: /tekton/home/.docker
+    command:
+    - /kaniko/executor
+    - --dockerfile=./Dockerfile
+    - --context=/workspace/git-docker/bootEmbedded
+    - --destination=$(params.dockerRepo)/galasadev/galasa-boot-embedded-amd64:$(params.distBranch)
+    - $(params.noPush)
+    - --oci-layout-path=/workspace/git-docker/obrGeneric/image-digest
+    - --skip-tls-verify
+    - --skip-tls-verify-pull
+    - --single-snapshot
+    - --verbosity=info
+    - --build-arg=dockerRepository=$(params.dockerRepo)
+    - --build-arg=branch=$(params.distBranch)
+    - --build-arg=jdkImage=library/openjdk:8-jdk
+  - name: ibm-docker-build
+    workingDir: /workspace/git-docker/ibmBootEmbedded
+    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    env:
+    - name: DOCKER_CONFIG
+      value: /tekton/home/.docker
+    command:
+    - /kaniko/executor
+    - --dockerfile=./Dockerfile
+    - --context=/workspace/git-docker/ibmBootEmbedded
+    - --destination=$(params.dockerRepo)/galasadev/galasa-ibm-boot-embedded-amd64:$(params.distBranch)
+    - $(params.noPush)
+    - --oci-layout-path=/workspace/git-docker/obrGeneric/image-digest
+    - --skip-tls-verify
+    - --skip-tls-verify-pull
+    - --single-snapshot
+    - --verbosity=info
+    - --build-arg=dockerRepository=$(params.dockerRepo)
+    - --build-arg=branch=$(params.distBranch)
+    - --build-arg=platform=amd64

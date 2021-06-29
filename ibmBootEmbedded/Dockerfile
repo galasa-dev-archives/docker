@@ -1,9 +1,8 @@
-ARG version
 ARG dockerRepository
 ARG branch
 ARG platform
 
-FROM ${dockerRepository}/galasadev/galasa-boot-embedded-${platform}:${version}-${branch}
+FROM ${dockerRepository}/galasadev/galasa-boot-embedded-${platform}:${branch}
 
 USER root
 
