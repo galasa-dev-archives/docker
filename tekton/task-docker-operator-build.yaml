@@ -1,0 +1,63 @@
+#
+# Licensed Materials - Property of IBM
+# 
+# (c) Copyright IBM Corp. 2021.
+#
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: docker-operator-build
+  namespace: galasa-tekton
+spec:
+  resources:
+    inputs:
+      - name: git-docker
+        type: git
+  params:
+  - name: distBranch
+    type: string
+  - name: mavenCentralRepo
+    type: string
+    default: https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/repository/proxy/
+  - name: extensionsSourceRepo
+    type: string
+    default: https://repo.maven.apache.org/maven2/
+  - name: dockerRepo
+    type: string
+    default: nexus.cics-ts.hur.hdclab.intranet.ibm.com:8080
+  - name: noPush
+    type: string
+    default: ""
+  steps:
+  - name: docker-operator-fetch
+    workingDir: /workspace/git-docker/dockerOperator
+    image: $(params.dockerRepo)/galasa/galasa-build
+    command:
+    - mvn
+    - -Dgpg.skip=true
+    - -Dgalasa.source.repo=$(params.extensionsSourceRepo)
+    - -Dgalasa.central.repo=$(params.mavenCentralRepo)
+    - --settings
+    - /workspace/git-docker/settings.xml
+    - -B
+    - -e
+    - -fae
+    - process-sources
+  - name: docker-operator-image-build
+    workingDir: /workspace/git-docker/dockerOperator
+    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    env:
+    - name: DOCKER_CONFIG
+      value: /tekton/home/.docker
+    command:
+    - /kaniko/executor
+    - --dockerfile=./Dockerfile
+    - --context=/workspace/git-docker/dockerOperator
+    - --destination=$(params.dockerRepo)/galasadev/galasa-docker-operator-amd64:$(params.distBranch)
+    - $(params.noPush)
+    - --oci-layout-path=/workspace/git-docker/dockerOperator/image-digest
+    - --skip-tls-verify
+    - --skip-tls-verify-pull
+    - --single-snapshot
+    - --verbosity=info
+    - --build-arg=dockerRepository=$(params.dockerRepo)

@@ -1,0 +1,27 @@
+#
+# Licensed Materials - Property of IBM
+# 
+# (c) Copyright IBM Corp. 2021.
+#
+kind: PipelineRun
+apiVersion: tekton.dev/v1beta1
+metadata:
+  generateName: main-docker-operator-
+  namespace: galasa-tekton
+spec:
+  params:
+  - name: distBranch
+    value: main
+  - name: version
+    value: 0.16.0
+  pipelineRef:
+    name: docker-operator-build
+  serviceAccountName: build-bot
+  resources:
+  - name: git-docker
+    resourceRef:
+      name: git-docker-main
+  podTemplate:
+    nodeSelector:
+      beta.kubernetes.io/arch: amd64
+      platform: hdc
