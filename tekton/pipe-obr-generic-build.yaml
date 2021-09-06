@@ -12,16 +12,88 @@ spec:
   resources:
   - name: git-docker
     type: git
+  workspaces:
+  - name: git-workspace
+    optional: false
   params:
   - name: distBranch
+    type: string
+  - name: refspec
     type: string
   - name: noPush
     type: string
     default: ""
   tasks:
+  - name: clone-obr
+    taskRef: 
+      name: git-clone
+    params:
+    - name: url
+      value: https://github.com/galasa-dev/obr
+    - name: revision
+      value: $(params.distBranch)
+    - name: refspec
+      value: $(params.refspec)
+    - name: depth
+      value: "1"
+    - name: subdirectory
+      value: obr
+    workspaces:
+     - name: output
+       workspace: git-workspace
+  - name: clone-framework
+    taskRef: 
+      name: git-clone
+    params:
+    - name: url
+      value: https://github.com/galasa-dev/framework
+    - name: revision
+      value: $(params.distBranch)
+    - name: depth
+      value: "1"
+    - name: subdirectory
+      value: framework
+    workspaces:
+     - name: output
+       workspace: git-workspace
+  - name: clone-extensions
+    taskRef: 
+      name: git-clone
+    params:
+    - name: url
+      value: https://github.com/galasa-dev/extensions
+    - name: revision
+      value: $(params.distBranch)
+    - name: depth
+      value: "1"
+    - name: subdirectory
+      value: extensions
+    workspaces:
+     - name: output
+       workspace: git-workspace
+  - name: clone-managers
+    taskRef: 
+      name: git-clone
+    params:
+    - name: url
+      value: https://github.com/galasa-dev/managers
+    - name: revision
+      value: $(params.distBranch)
+    - name: depth
+      value: "1"
+    - name: subdirectory
+      value: managers
+    workspaces:
+     - name: output
+       workspace: git-workspace
   - name: obr-build
     taskRef:
       name: obr-generic-build
+    runAfter:
+    - clone-obr
+    - clone-framework
+    - clone-extensions
+    - clone-managers
     params:
     - name: distBranch
       value: $(params.distBranch)
@@ -35,3 +107,6 @@ spec:
       inputs:
       - name: git-docker
         resource: git-docker
+    workspaces:
+     - name: git-workspace
+       workspace: git-workspace

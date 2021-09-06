@@ -12,6 +12,8 @@ spec:
   params:
   - name: distBranch
     value: main
+  - name: refspec
+    value: +refs/heads/main:refs/heads/main
   pipelineRef:
     name: obr-generic-build
   serviceAccountName: build-bot
@@ -23,3 +25,13 @@ spec:
     nodeSelector:
       beta.kubernetes.io/arch: amd64
       platform: hdc
+  workspaces:
+  - name: git-workspace
+    volumeClaimTemplate:
+      spec:
+        storageClassName: rbd
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

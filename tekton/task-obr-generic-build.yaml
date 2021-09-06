@@ -13,6 +13,10 @@ spec:
     inputs:
       - name: git-docker
         type: git
+  workspaces:
+  - name: git-workspace
+    optional: false
+    mountpath: /workspace/git
   params:
   - name: distBranch
     type: string
@@ -29,6 +33,25 @@ spec:
     type: string
     default: ""
   steps:
+  - name: generate-embedded
+    workingDir: /workspace/git-docker/obrGeneric
+    image: $(params.dockerRepo)/galasa/galasa-build:latest
+    command:
+    - galasabld 
+    - template 
+    - --releaseMetadata
+    - /workspace/git/framework/release.yaml 
+    - --releaseMetadata
+    - /workspace/git/extensions/release.yaml 
+    - --releaseMetadata
+    - /workspace/git/managers/release.yaml 
+    - --releaseMetadata
+    - /workspace/git/obr/release.yaml 
+    - --template
+    - pom.template 
+    - --output
+    - pom.xml 
+    - --obr
   - name: obr-embed
     workingDir: /workspace/git-docker/obrGeneric
     image: $(params.dockerRepo)/galasa/galasa-build
