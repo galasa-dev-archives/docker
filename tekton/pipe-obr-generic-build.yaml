@@ -9,9 +9,6 @@ metadata:
   name: obr-generic-build
   namespace: galasa-tekton
 spec:
-  resources:
-  - name: git-docker
-    type: git
   workspaces:
   - name: git-workspace
     optional: false
@@ -86,6 +83,21 @@ spec:
     workspaces:
      - name: output
        workspace: git-workspace
+  - name: clone-docker
+    taskRef: 
+      name: git-clone
+    params:
+    - name: url
+      value: https://github.com/galasa-dev/docker
+    - name: revision
+      value: $(params.distBranch)
+    - name: depth
+      value: "1"
+    - name: subdirectory
+      value: docker
+    workspaces:
+     - name: output
+       workspace: git-workspace
   - name: obr-build
     taskRef:
       name: obr-generic-build
@@ -94,6 +106,7 @@ spec:
     - clone-framework
     - clone-extensions
     - clone-managers
+    - clone-docker
     params:
     - name: distBranch
       value: $(params.distBranch)
@@ -103,10 +116,6 @@ spec:
       value: https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/repository/proxy/
     - name: noPush
       value: $(params.noPush)
-    resources:
-      inputs:
-      - name: git-docker
-        resource: git-docker
     workspaces:
      - name: git-workspace
        workspace: git-workspace

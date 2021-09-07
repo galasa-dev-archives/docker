@@ -17,10 +17,6 @@ spec:
   pipelineRef:
     name: obr-generic-build
   serviceAccountName: build-bot
-  resources:
-  - name: git-docker
-    resourceRef:
-      name: git-docker-main
   podTemplate:
     nodeSelector:
       beta.kubernetes.io/arch: amd64
