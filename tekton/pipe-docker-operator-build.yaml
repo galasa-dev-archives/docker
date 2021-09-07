@@ -1,7 +1,5 @@
 #
-# Licensed Materials - Property of IBM
-# 
-# (c) Copyright IBM Corp. 2021.
+# Copyright contributors to the Galasa project 
 #
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -9,19 +7,38 @@ metadata:
   name: docker-operator-build
   namespace: galasa-tekton
 spec:
-  resources:
-  - name: git-docker
-    type: git
+  workspaces:
+  - name: git-workspace
+    optional: false
   params:
   - name: distBranch
+    type: string
+  - name: refspec
     type: string
   - name: noPush
     type: string
     default: ""
   tasks:
+  - name: clone-docker
+    taskRef: 
+      name: git-clone
+    params:
+    - name: url
+      value: https://github.com/galasa-dev/docker
+    - name: revision
+      value: $(params.distBranch)
+    - name: depth
+      value: "1"
+    - name: subdirectory
+      value: docker
+    workspaces:
+     - name: output
+       workspace: git-workspace
   - name: docker-operator-build
     taskRef:
       name: docker-operator-build
+    runAfter:
+    - clone-docker
     params:
     - name: distBranch
       value: $(params.distBranch)
@@ -31,7 +48,6 @@ spec:
       value: https://nexus.cics-ts.hur.hdclab.intranet.ibm.com/repository/proxy/
     - name: noPush
       value: $(params.noPush)
-    resources:
-      inputs:
-      - name: git-docker
-        resource: git-docker
+    workspaces:
+     - name: git-workspace
+       workspace: git-workspace
