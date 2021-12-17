@@ -22,14 +22,14 @@ spec:
     default: https://repo.maven.apache.org/maven2/
   - name: dockerRepo
     type: string
-    default: nexus.cics-ts.hur.hdclab.intranet.ibm.com:8080
+    default: harbor-cicsk8s.hursley.ibm.com
   - name: noPush
     type: string
     default: ""
   steps:
   - name: generate-embedded
     workingDir: /workspace/git/docker/obrGeneric
-    image: $(params.dockerRepo)/galasa/galasa-build:latest
+    image: $(params.dockerRepo)/galasadev/galasa-build:latest
     command:
     - galasabld 
     - template 
@@ -48,7 +48,7 @@ spec:
     - --obr
   - name: obr-embed
     workingDir: /workspace/git/docker/obrGeneric
-    image: $(params.dockerRepo)/galasa/galasa-build
+    image: $(params.dockerRepo)/galasadev/galasa-build
     command:
     - mvn
     - -Dgalasa.source.repo=$(params.obrSourceRepo)
@@ -62,7 +62,7 @@ spec:
     - dev.galasa:galasa-maven-plugin:0.15.0:obrembedded
   - name: generic-docker-build
     workingDir: /workspace/git/docker/obrGeneric
-    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    image: $(params.dockerRepo)/common/kaniko-project/executor:latest
     env:
     - name: DOCKER_CONFIG
       value: /tekton/home/.docker
@@ -79,7 +79,7 @@ spec:
     - --verbosity=info
   - name: amd64-docker-build
     workingDir: /workspace/git/docker/bootEmbedded
-    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    image: $(params.dockerRepo)/common/kaniko-project/executor:latest
     env:
     - name: DOCKER_CONFIG
       value: /tekton/home/.docker
@@ -96,10 +96,10 @@ spec:
     - --verbosity=info
     - --build-arg=dockerRepository=$(params.dockerRepo)
     - --build-arg=branch=$(params.distBranch)
-    - --build-arg=jdkImage=library/openjdk:8-jdk
+    - --build-arg=jdkImage=dockerhub/library/openjdk:8-jdk
   - name: ibm-docker-build
     workingDir: /workspace/git/docker/ibmBootEmbedded
-    image: $(params.dockerRepo)/library/kaniko-executor:latest
+    image: $(params.dockerRepo)/common/kaniko-project/executor:latest
     env:
     - name: DOCKER_CONFIG
       value: /tekton/home/.docker
