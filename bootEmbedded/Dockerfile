@@ -6,17 +6,18 @@ FROM ${dockerRepository}/galasadev/galasa-obr-generic:${branch}
 
 FROM ${dockerRepository}/${jdkImage}
 
-COPY --from=0 /galasa/* /galasa/
-
-RUN adduser --home /galasa galasa       && \
-    chown -R galasa:galasa /galasa
-    
 RUN touch /var/run/docker.sock && \
     chmod 666 /var/run/docker.sock
 
+RUN adduser --disabled-password --home /galasa galasa       && \
+    chown -R galasa:galasa /galasa
+    
 WORKDIR /galasa
 
 USER galasa
+
+COPY --from=0 /galasa/* /galasa/
+
 
 RUN mkdir /galasa/.galasa                          && \
     touch /galasa/.galasa/bootstrap.properties     && \
