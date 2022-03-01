@@ -8,7 +8,7 @@ FROM ${dockerRepository}/${jdkImage}
 
 COPY --from=0 /galasa/* /galasa/
 
-RUN useradd -u 1000 -d /galasa galasa              && \
+RUN adduser --home /galasa galasa       && \
     chown -R galasa:galasa /galasa
     
 RUN touch /var/run/docker.sock && \
