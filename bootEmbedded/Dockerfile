@@ -30,6 +30,7 @@ RUN mkdir /galasa/.galasa                          && \
     
 
 COPY trace-log4j.properties /galasa/
+COPY kubectl /galasa/kubectl
     
 VOLUME /galasa/.galasa
 VOLUME /galasa/load
