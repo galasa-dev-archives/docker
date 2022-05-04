@@ -12,6 +12,8 @@ RUN touch /var/run/docker.sock && \
 RUN adduser --disabled-password --home /galasa galasa       && \
     chown -R galasa:galasa /galasa
     
+COPY kubectl /usr/bin/kubectl
+
 WORKDIR /galasa
 
 USER galasa
@@ -30,7 +32,6 @@ RUN mkdir /galasa/.galasa                          && \
     
 
 COPY trace-log4j.properties /galasa/
-COPY kubectl /galasa/kubectl
 COPY helm-post-install.sh /galasa/
     
 VOLUME /galasa/.galasa
