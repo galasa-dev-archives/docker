@@ -31,6 +31,8 @@ RUN mkdir /galasa/.galasa                          && \
 
 COPY trace-log4j.properties /galasa/
 COPY kubectl /galasa/kubectl
+COPY helm-post-install.sh /galasa/
+RUN chmod +x /galasa/helm-post-install.sh
     
 VOLUME /galasa/.galasa
 VOLUME /galasa/load
