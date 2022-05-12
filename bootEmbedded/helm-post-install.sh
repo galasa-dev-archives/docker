@@ -20,3 +20,5 @@ kubectl replace -f bootstrap-new.yaml
 kubectl rollout restart deployment/api
 
 kubectl rollout status deployment/api -w --timeout=3m
+
+java -jar boot.jar --obr file:galasa.obr --bootstrap http://api:8080/bootstrap --setupeco
