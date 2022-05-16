@@ -22,8 +22,8 @@ kubectl rollout restart deployment/api
 kubectl rollout status deployment/api -w --timeout=3m
 
 export GALASA_EXTERNAL_DYNAMICSTATUS_STORE=etcd:http://$1:$ETCDPORT
-export GALASA_EXTERNAL_RESULTARCHIVE_STORE=etcd:http://$1:$ETCDPORT
-export GALASA_EXTERNAL_CREDENTIALS_STORE=couchdb:http://$1:$COUCHDBPORT
+export GALASA_EXTERNAL_RESULTARCHIVE_STORE=couchdb:http://$1:$COUCHDBPORT
+export GALASA_EXTERNAL_CREDENTIALS_STORE=etcd:http://$1:$ETCDPORT
 
 echo DSS   is $GALASA_EXTERNAL_DYNAMICSTATUS_STORE
 echo RAS   is $GALASA_EXTERNAL_RESULTARCHIVE_STORE
